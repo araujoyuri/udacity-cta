@@ -33,16 +33,15 @@ class TransformedStation(faust.Record):
 #   places it into a new topic with only the necessary information.
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 # TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
-# topic = app.topic("TODO", value_type=Station)
+topic = app.topic("com.udacity.stations", value_type=Station)
 # TODO: Define the output Kafka Topic
-# out_topic = app.topic("TODO", partitions=1)
+out_topic = app.topic("com.udacity.stations.table", partitions=1)
 # TODO: Define a Faust Table
-#table = app.Table(
-#    # "TODO",
-#    # default=TODO,
-#    partitions=1,
-#    changelog_topic=out_topic,
-#)
+table = app.Table(
+   "com.udacity.stations.table",
+   partitions=1,
+   changelog_topic=out_topic,
+)
 
 
 #
@@ -52,6 +51,26 @@ app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memor
 # then you would set the `line` of the `TransformedStation` record to the string `"red"`
 #
 #
+@app.agent(topic)
+async def process(stream):
+    async for data in stream:
+        if data.red:
+            line = "red"
+        elif data.green:
+            line = "green"
+        elif data.blue:
+            line = "blue"
+        else:
+            raise ValueError("Missing color field")
+
+        value = {
+            "station_id": data.station_id,
+            "station_name": data.station_name,
+            "order": data.order,
+            "line": line
+        }
+
+        await out_topic.send(value=value)
 
 
 if __name__ == "__main__":

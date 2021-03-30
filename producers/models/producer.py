@@ -48,8 +48,10 @@ class Producer:
 
         self.admin_client = AdminClient({'bootstrap.servers': KAFKA_SERVER})
 
+        topic_metadata = self.admin_client.list_topics()
+
         # If the topic does not already exist, try to create it
-        if self.topic_name not in Producer.existing_topics:
+        if not topic_metadata.topics.get(self.topic_name):
             self.create_topic()
             Producer.existing_topics.add(self.topic_name)
 
