@@ -7,7 +7,9 @@ from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer
 
-from commons.envs import KAFKA_SERVER, SCHEMA_REGISTRY
+
+KAFKA_SERVER = 'localhost:9092'
+SCHEMA_REGISTRY = 'http://localhost:8081'
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +46,8 @@ class Producer:
             'bootstrap.servers': KAFKA_SERVER
         }
 
+        self.admin_client = AdminClient({'bootstrap.servers': KAFKA_SERVER})
+
         # If the topic does not already exist, try to create it
         if self.topic_name not in Producer.existing_topics:
             self.create_topic()
@@ -51,8 +55,6 @@ class Producer:
 
         # TODO: Configure the AvroProducer
         self.producer = AvroProducer(config=self.broker_properties, default_key_schema=self.key_schema, default_value_schema=self.value_schema)
-
-        self.admin_client = AdminClient({'bootstrap.servers': KAFKA_SERVER})
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
