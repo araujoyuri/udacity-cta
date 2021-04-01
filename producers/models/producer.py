@@ -43,7 +43,8 @@ class Producer:
         #
         self.broker_properties = {
             'schema.registry.url': SCHEMA_REGISTRY,
-            'bootstrap.servers': KAFKA_SERVER
+            'bootstrap.servers': KAFKA_SERVER,
+            'group.id': 'groupid'
         }
 
         self.admin_client = AdminClient({'bootstrap.servers': KAFKA_SERVER})

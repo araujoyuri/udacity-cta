@@ -40,6 +40,8 @@ class KafkaConsumer:
             "bootstrap.servers": "PLAINTEXT://localhost:9092",
             "group.id": "groupid"
         }
+        if self.offset_earliest:
+            self.broker_properties['auto.offset.reset'] = 'earliest'
 
         # TODO: Create the Consumer, using the appropriate type.
         if is_avro is True:
@@ -60,7 +62,6 @@ class KafkaConsumer:
         """Callback for when topic assignment takes place"""
         # TODO: If the topic is configured to use `offset_earliest` set the partition offset to
         # the beginning or earliest
-        logger.info("on_assign is incomplete - skipping")
         for partition in partitions:
             partition.offset = confluent_kafka.OFFSET_BEGINNING
 

@@ -9,7 +9,8 @@
     },
     {
       "name": "status",
-      "type": "int"
+      "type": "enum",
+      "symbols": [0, 1, 2, 3, 4]
     }
   ]
 }

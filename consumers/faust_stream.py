@@ -1,5 +1,6 @@
 """Defines trends calculations for stations"""
 import logging
+from dataclasses import dataclass
 
 import faust
 
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 # Faust will ingest records from Kafka in this format
+@dataclass
 class Station(faust.Record):
     stop_id: int
     direction_id: str
@@ -16,12 +18,13 @@ class Station(faust.Record):
     station_descriptive_name: str
     station_id: int
     order: int
-    red: bool
-    blue: bool
-    green: bool
+    red: str
+    blue: str
+    green: str
 
 
 # Faust will produce records to Kafka in this format
+@dataclass
 class TransformedStation(faust.Record):
     station_id: int
     station_name: str
@@ -33,9 +36,9 @@ class TransformedStation(faust.Record):
 #   places it into a new topic with only the necessary information.
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 # TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
-topic = app.topic("com.udacity.stations", value_type=Station)
+topic = app.topic("com.udacity.details.stations", value_type=Station)
 # TODO: Define the output Kafka Topic
-out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1, value_type=TransformedStation)
 # TODO: Define a Faust Table
 table = app.Table(
    "org.chicago.cta.stations.table.v1",
@@ -61,7 +64,8 @@ async def process(stream):
         elif data.blue:
             line = "blue"
         else:
-            raise ValueError("Missing color field")
+            line = None
+            logger.error("Missing color field")
 
         value = {
             "station_id": data.station_id,
