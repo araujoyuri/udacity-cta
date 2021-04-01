@@ -1,6 +1,6 @@
 """Defines trends calculations for stations"""
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 import faust
 
@@ -57,6 +57,7 @@ table = app.Table(
 @app.agent(topic)
 async def process(stream):
     async for data in stream:
+        logger.info(f"data: {asdict(data)}")
         if data.red:
             line = "red"
         elif data.green:
