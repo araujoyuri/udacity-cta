@@ -68,14 +68,14 @@ async def process(stream):
             line = None
             logger.error("Missing color field")
 
-        value = {
-            "station_id": data.station_id,
-            "station_name": data.station_name,
-            "order": data.order,
-            "line": line
-        }
+        table[data.station_id] = TransformedStation(
+            station_id=data.station_id,
+            station_name=data.station_name,
+            order=data.order,
+            line=line
+        )
 
-        await out_topic.send(value=value)
+        logger.info(f"Aggregated data {asdict(table[data.station_id])}")
 
 
 if __name__ == "__main__":

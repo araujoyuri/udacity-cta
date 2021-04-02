@@ -62,18 +62,26 @@ class Station(Producer):
         # TODO: Complete this function by producing an arrival message to Kafka
         #
         #
+
+        value = {
+            "station_id": self.station_id,
+            "train_id": train.train_id,
+            "direction": direction,
+            "line": str(self.color),
+            "train_status": str(train.status),
+            "prev_station_id": None,
+            "prev_direction": None
+        }
+
+        if prev_direction:
+            value["prev_direction"] = str(prev_direction)
+        if prev_station_id:
+            value["prev_station_id"] = int(prev_station_id)
+
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
-            value={
-                "station_id": self.station_id,
-                "train_id": train.train_id,
-                "direction": direction,
-                "line": str(self.color),
-                "train_status": str(train.status),
-                "prev_station_id": prev_station_id,
-                "prev_direction": prev_direction
-            }
+            value=value
         )
 
     def __str__(self):

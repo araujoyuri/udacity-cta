@@ -31,7 +31,9 @@ class Line:
         line = [
             Station(station_data["station_id"].unique()[0], stations[0], self.color)
         ]
+        logger.info(f"Line: {line}")
         prev_station = line[0]
+        logger.info(f"prev_station: {prev_station}")
         for station in stations[1:]:
             station_data = station_df[station_df["station_name"] == station]
             new_station = Station(
@@ -40,6 +42,7 @@ class Line:
                 self.color,
                 prev_station,
             )
+            logger.info(f"new_station: {new_station}")
             prev_station.dir_b = new_station
             prev_station = new_station
             line.append(new_station)
